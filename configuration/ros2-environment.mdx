@@ -1,0 +1,124 @@
+---
+title: "Configure the ROS2 Humble Shell Environment"
+sidebarTitle: "ROS2 Environment"
+description: "Set up your ~/.bashrc with ROS2 Humble source lines, ROS_DOMAIN_ID, colcon shell completion, and useful aliases for a productive workflow."
+---
+
+After the `ros2_install.sh` script finishes installing ROS2 Humble, it automatically appends several configuration lines to your `~/.bashrc` file. These lines activate the ROS2 environment, overlay your colcon workspace, enable tab completion for colcon commands, and define a pair of convenience aliases — all of which are sourced every time you open a new terminal. This page explains what each line does and how to customize them to fit your workflow.
+
+## Lines Added to `~/.bashrc`
+
+The table below lists every entry that `ros2_install.sh` writes to your `~/.bashrc` and describes its purpose.
+
+| Line | Purpose |
+|------|---------|
+| `alias nb='nano ~/.bashrc'` | Opens `~/.bashrc` in the Nano editor with a short command. |
+| `alias sb='source ~/.bashrc'` | Reloads `~/.bashrc` in the current shell without opening a new terminal. |
+| `source /opt/ros/humble/setup.bash` | Activates the core ROS2 Humble environment — makes `ros2`, `rviz2`, and all system-level packages available. |
+| `source ~/colcon_ws/install/setup.bash` | Activates the colcon workspace overlay so packages you build locally are found by ROS2. |
+| `source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash` | Enables `<Tab>` completion for all `colcon` sub-commands and options. |
+| `export ROS_DOMAIN_ID=0` | Sets the DDS domain identifier to `0` (the default). Nodes must share the same domain ID to communicate. |
+
+<Note>
+After running `ros2_install.sh`, open a new terminal or run `source ~/.bashrc` (alias: `sb`) for every change to take effect. The installer does **not** automatically reload your current shell session.
+</Note>
+
+---
+
+## Applying Changes After Editing `.bashrc`
+
+<Steps>
+  <Step title="Open .bashrc">
+    Use Nano directly or the `nb` alias that the installer added:
+
+    ```bash
+    nano ~/.bashrc
+    # or using the alias
+    nb
+    ```
+  </Step>
+
+  <Step title="Make your edits">
+    Modify the relevant lines — for example, changing `ROS_DOMAIN_ID` or adding new aliases.
+  </Step>
+
+  <Step title="Reload the file">
+    Apply the changes in your current shell session without closing the terminal:
+
+    ```bash
+    source ~/.bashrc
+    # or use the alias
+    sb
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Understanding `ROS_DOMAIN_ID`
+
+ROS2 uses the **DDS (Data Distribution Service)** middleware for communication. The `ROS_DOMAIN_ID` environment variable controls which DDS domain your nodes join. Nodes on **different domain IDs cannot communicate**, even if they run on the same machine or the same network.
+
+<CardGroup cols={2}>
+  <Card title="Valid range" icon="hash">
+    `0` through `101`. The default set by `ros2_install.sh` is `0`.
+  </Card>
+  <Card title="When to change it" icon="network-wired">
+    Change to any unique number (1–101) when sharing a network with other ROS2 users to prevent cross-talk between unrelated robots.
+  </Card>
+</CardGroup>
+
+To change your domain ID, edit `~/.bashrc` and update the export line:
+
+```bash
+export ROS_DOMAIN_ID=42   # any value from 0 to 101
+```
+
+Then reload your shell:
+
+```bash
+sb
+```
+
+<Tip>
+If you are on a shared network — a classroom, lab, or multi-robot setup — set `ROS_DOMAIN_ID` to a unique number (1–101) for each workstation to avoid interference between unrelated ROS2 nodes.
+</Tip>
+
+---
+
+## Verifying the Environment Is Active
+
+Run the following commands after sourcing your `~/.bashrc` to confirm ROS2 Humble is properly activated:
+
+```bash
+rosversion -d
+# expected output: humble
+
+echo $ROS_DISTRO
+# expected output: humble
+
+echo $ROS_DOMAIN_ID
+# expected output: 0
+```
+
+If any command returns an empty string or an error, confirm that `ros2_install.sh` completed without errors and that you have sourced `~/.bashrc` in the current terminal.
+
+---
+
+## Editing `.bashrc` Manually
+
+You can open the file at any time using the alias added by the installer or via a direct Nano command:
+
+```bash
+nano ~/.bashrc
+# or using the alias
+nb
+```
+
+After saving your edits (`Ctrl+O`, then `Enter` to confirm, then `Ctrl+X` to exit Nano), always reload the file:
+
+```bash
+source ~/.bashrc
+# or
+sb
+```

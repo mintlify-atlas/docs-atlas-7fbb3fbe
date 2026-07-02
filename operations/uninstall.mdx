@@ -1,0 +1,119 @@
+---
+title: "Uninstall ROS2 Humble from Ubuntu 22.04"
+sidebarTitle: "Uninstall"
+description: "Completely remove ROS2 Humble from Ubuntu 22.04 — purge packages, remove APT sources, and clean up ~/.bashrc environment variables."
+---
+
+To cleanly remove ROS2 Humble from Ubuntu 22.04 you need to do three things: purge the ROS2 packages via APT, delete the APT source list entry that points to the ROS2 package repository, and remove the environment-sourcing lines that the installer added to your `~/.bashrc`. Skipping any of these steps can leave stale configuration behind or cause confusing errors in future installs. Follow the steps below in order.
+
+<Warning>
+  `sudo apt remove --purge ros-humble-*` removes **all** ROS2 Humble packages from your system. Make sure you do not have other projects or workspaces depending on them before running this command.
+</Warning>
+
+## Uninstall Procedure
+
+<Steps>
+  <Step title="Open a new terminal">
+    Press **Ctrl + Alt + T** to open a fresh terminal, or launch your preferred terminal emulator. Starting in a clean session ensures the ROS2 environment variables from the current shell do not interfere with the removal commands.
+  </Step>
+
+  <Step title="Purge all ROS2 Humble packages">
+    Remove every installed `ros-humble-*` package along with its configuration files:
+
+    ```bash
+    sudo apt remove --purge ros-humble-*
+    ```
+
+    APT will show a list of packages to be removed and prompt for confirmation before proceeding.
+  </Step>
+
+  <Step title="Auto-remove unused dependencies">
+    Clean up any orphaned dependency packages that were installed alongside ROS2 but are no longer needed by anything else on the system:
+
+    ```bash
+    sudo apt autoremove
+    ```
+  </Step>
+
+  <Step title="Remove the ROS2 APT source list">
+    Delete the APT source file that was added during installation so that future `apt update` calls no longer query the ROS2 package repository:
+
+    ```bash
+    sudo rm /etc/apt/sources.list.d/ros2.list
+    ```
+  </Step>
+
+  <Step title="Update APT package index">
+    Refresh the package index so APT reflects the removal of the ROS2 source:
+
+    ```bash
+    sudo apt update
+    ```
+  </Step>
+
+  <Step title="Edit ~/.bashrc to remove the ROS2 environment lines">
+    Open your shell configuration file in the nano editor:
+
+    ```bash
+    nano ~/.bashrc
+    ```
+
+    Locate and **delete** the following lines that source the ROS2 environment (they were added by `ros2_install.sh`):
+
+    ```bash
+    # source ROS 2 environment
+    source /opt/ros/humble/setup.bash
+    ```
+
+    If you also built a colcon workspace, remove the workspace overlay line as well:
+
+    ```bash
+    source ~/colcon_ws/install/setup.bash
+    ```
+
+    You can also remove any related alias or colcon-argcomplete lines if present:
+
+    ```bash
+    alias nb='nano ~/.bashrc'
+    alias sb='source ~/.bashrc'
+    source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+    export ROS_DOMAIN_ID=0
+    ```
+
+    Save the file with **Ctrl + O**, then exit with **Ctrl + X**.
+  </Step>
+
+  <Step title="Reload the shell configuration">
+    Apply the updated `~/.bashrc` without opening a new terminal:
+
+    ```bash
+    source ~/.bashrc
+    ```
+  </Step>
+
+  <Step title="Verify the removal">
+    Confirm that ROS2 is no longer present on the system. This command should return an error or produce no output:
+
+    ```bash
+    rosversion -d
+    ```
+
+    If the command is not found, or returns `command not found`, ROS2 Humble has been successfully removed.
+  </Step>
+</Steps>
+
+<Note>
+  The colcon workspace directory at `~/colcon_ws` is **not** deleted by this procedure — only the installed ROS2 packages are removed. If you no longer need the workspace source code and build artifacts, you can delete it manually:
+
+  ```bash
+  rm -rf ~/colcon_ws
+  ```
+</Note>
+
+<Tip>
+  If you installed additional development tools alongside ROS2 (such as `python3-colcon-common-extensions`, `python3-rosdep2`, and `python3-vcstool`), you can remove them in a single command:
+
+  ```bash
+  sudo apt remove --purge python3-colcon-common-extensions python3-rosdep2 python3-vcstool
+  ```
+</Tip>

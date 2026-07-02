@@ -1,0 +1,153 @@
+---
+title: "Docker Container and Image Management for ROS2"
+sidebarTitle: "Docker Management"
+description: "Manage the xxthanatosxx/ros2-humble Docker image and containers — start, stop, file transfer, committing changes, and pushing images to Docker Hub."
+---
+
+The MobileRobot Docker workflow lets you persist your entire ROS2 Humble environment as a portable Docker image and share it with teammates or students via Docker Hub. Rather than reinstalling ROS2 from scratch on every machine, you pull a pre-built image, run it as a container, customise it, and commit the result back to a new image — all without touching the host operating system. This page covers the day-to-day container operations you will use throughout the course.
+
+## Container Lifecycle
+
+<Steps>
+  <Step title="Pull the pre-built image">
+    Open a terminal (cmd on Windows or a shell on Linux/macOS) and download the course image from Docker Hub:
+
+    ```bash
+    docker pull xxthanatosxx/ros2-humble:1.0.0
+    ```
+  </Step>
+
+  <Step title="Verify the image is available">
+    Confirm the image was downloaded successfully by listing all local images:
+
+    ```bash
+    docker images
+    ```
+
+    You should see `xxthanatosxx/ros2-humble` with tag `1.0.0` in the output.
+  </Step>
+
+  <Step title="Create a container from the image">
+    Instantiate a new interactive container named `ros2-humble-container`:
+
+    ```bash
+    docker run -it --name ros2-humble-container xxthanatosxx/ros2-humble:1.0.0 /bin/bash
+    ```
+
+    This drops you directly into a bash shell inside the container.
+  </Step>
+
+  <Step title="Start a stopped container">
+    If the container already exists but is not running, start it again without creating a new one:
+
+    ```bash
+    docker start ros2-humble-container
+    ```
+  </Step>
+
+  <Step title="Stop a running container">
+    Gracefully stop the container when you are done working:
+
+    ```bash
+    docker stop ros2-humble-container
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+  Use `docker ps -a` to list **all** containers, including stopped ones, and retrieve their container IDs and names at any time.
+</Tip>
+
+## Container with Display Forwarding
+
+GUI tools such as `rviz2` and `rqt` require the container to forward its display output to the host. The command below launches the container in detached mode with the `DISPLAY` environment variable pointed at the host's X server (provided by XLaunch / Xming on Windows):
+
+```bash
+docker run --name ros2-humble --user=user --env=DISPLAY=host.docker.internal:0 --volume="C:\\:/mnt/c" --restart=no --runtime=runc --network=host -t -d ros2-humble-img
+```
+
+| Flag | Purpose |
+|------|---------|
+| `--user=user` | Runs the session as the non-root `user` account created in the Dockerfile |
+| `--env=DISPLAY=host.docker.internal:0` | Forwards display output to the host X server |
+| `--volume="C:\\:/mnt/c"` | Mounts the Windows `C:\` drive inside the container at `/mnt/c` |
+| `--network=host` | Shares the host network stack, required for ROS2 DDS discovery |
+| `-t -d` | Allocates a pseudo-TTY and runs in detached (background) mode |
+
+### Optional: Shared Folder Mount
+
+To make a specific Windows folder accessible inside the container, add a second `--volume` binding:
+
+```bash
+docker run --name ros2-humble --user=user --env=DISPLAY=host.docker.internal:0 --volume="C:\\:/mnt/c" --volume="C:\\Users\\UNIMAR\\Documents\\Docker\\shared_folder:/mnt/shared_folder" --restart=no --runtime=runc --network=host -t -d ros2-humble-img
+```
+
+After the container starts, verify the shared folder is reachable from inside the container:
+
+```bash
+cd /mnt/shared_folder
+```
+
+## File Transfer Between Host and Container
+
+You can copy files or entire directories in both directions using `docker cp` without needing a shared volume.
+
+**Host → Container**
+
+```bash
+docker cp "C:\Users\UNIMAR\Documents\Docker\shared_folder" ros2-humble:/home/user/test
+```
+
+**Container → Host**
+
+```bash
+docker cp ros2-humble:/ruta/dentro/del/contenedor "C:\Users\UNIMAR\Documents\Docker\local_folder"
+```
+
+## Creating a New Image from a Running Container
+
+After installing packages or making configuration changes inside a container, you can snapshot those changes into a new image and push it to Docker Hub so others can pull your exact environment.
+
+<Steps>
+  <Step title="List all containers to find the container ID">
+    ```bash
+    docker ps -a
+    ```
+
+    Note the **CONTAINER ID** of the container you want to snapshot (for example `6485864c931d`).
+  </Step>
+
+  <Step title="Commit the container to a new image">
+    Replace `6485864c931d` with your actual container ID:
+
+    ```bash
+    docker commit 6485864c931d xxthanatosxx/ros2-humble:1.0.0
+    ```
+
+    This creates a new local image tagged `xxthanatosxx/ros2-humble:1.0.0` from the container's current filesystem state.
+  </Step>
+
+  <Step title="Verify the new image">
+    ```bash
+    docker images
+    ```
+
+    The updated image should appear at the top of the list with a fresh `CREATED` timestamp.
+  </Step>
+
+  <Step title="Push the image to Docker Hub">
+    ```bash
+    docker push xxthanatosxx/ros2-humble:1.0.0
+    ```
+
+    Once the push completes, anyone can pull this image with `docker pull xxthanatosxx/ros2-humble:1.0.0`.
+  </Step>
+</Steps>
+
+<Note>
+  You must be logged in to Docker Hub before pushing images. Run `docker login` and enter your Docker Hub credentials if you have not done so already in the current session.
+</Note>
+
+<Warning>
+  `docker commit` captures the container filesystem **at the time of the commit**. Any changes made inside the container after the commit — and before the container is next committed — are not saved. Uncommitted changes are permanently lost when the container is removed.
+</Warning>

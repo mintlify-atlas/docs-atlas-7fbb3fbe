@@ -1,0 +1,78 @@
+---
+title: "MobileRobot: Mobile Robotics Course Environment"
+sidebarTitle: "Introduction"
+description: "MobileRobot provides automated ROS2 Humble installation scripts and Docker images for mobile robotics students and researchers on Ubuntu 22.04."
+---
+
+MobileRobot is an open-source course repository designed for students and researchers who want to learn and experiment with mobile robotics using [ROS2 Humble](https://docs.ros.org/en/humble/index.html). It removes the friction of environment setup by providing battle-tested shell scripts and a pre-built Docker image, so you can focus on building and simulating robots rather than wrestling with dependencies. Whether you are running Ubuntu 22.04 natively inside a VMware virtual machine or spinning up a container on Windows or macOS, MobileRobot has a setup path ready for you.
+
+## Repository Structure
+
+The MobileRobot repository on [GitHub](https://github.com/xXThanatosXx/MobileRobot) is organized into a handful of focused folders:
+
+| Path | Contents |
+|------|----------|
+| `Scripts/ros2_install.sh` | Fully automated ROS2 Humble installer — sets locale, adds the ROS2 apt source, installs `ros-humble-desktop`, bootstraps a `colcon_ws` workspace, and writes all necessary `source` lines to `~/.bashrc` |
+| `Scripts/install_ros_packages.sh` | Secondary installer that adds simulation, control, and tooling packages on top of the base ROS2 installation |
+| `Logos/` | Course artwork and imagery used in documentation and video thumbnails |
+| `README.md` | Project overview with installation steps and video walkthroughs |
+
+## Setup Paths
+
+MobileRobot supports two complementary setup strategies. Choose the one that fits your hardware and operating system.
+
+<CardGroup cols={2}>
+  <Card title="Native Ubuntu 22.04" icon="ubuntu" href="installation/native-ubuntu">
+    Install ROS2 Humble directly on Ubuntu 22.04, either on bare metal or inside a VMware Workstation Player 17 virtual machine. Recommended for students who want full hardware access and the best simulation performance.
+  </Card>
+  <Card title="Docker" icon="docker" href="installation/docker">
+    Pull the pre-built `xxthanatosxx/ros2-humble:1.0.0` image and run a ready-to-use ROS2 Humble container on any host OS — Windows, macOS, or Linux — with optional shared-folder and display forwarding support.
+  </Card>
+</CardGroup>
+
+## Key Packages Installed
+
+The two install scripts work in sequence to produce a complete mobile-robotics development environment. The table below lists every package and its purpose.
+
+| Package | Purpose |
+|---------|---------|
+| `ros-humble-desktop` | Full ROS2 Humble desktop installation including `rviz2`, `rqt`, and core libraries |
+| `ros-humble-gazebo-ros` / `ros-humble-gazebo-ros-pkgs` | Gazebo classic simulation bridge for ROS2 |
+| `ros-humble-ros2-control` | Hardware abstraction layer and controller manager |
+| `ros-humble-gazebo-ros2-control` | Gazebo plugin that exposes `ros2_control` interfaces |
+| `ros-humble-joint-state-publisher-gui` | Interactive GUI slider for broadcasting joint states |
+| `ros-humble-turtlesim` | Lightweight 2-D robot simulator for learning ROS2 concepts |
+| `ros-humble-robot-localization` | EKF/UKF-based state estimation for mobile robots |
+| `ros-humble-joy` | Joystick driver node |
+| `ros-humble-joy-teleop` | Generic teleop node driven by joystick input |
+| `ros-humble-tf-transformations` | Python-friendly TF math utilities |
+| `ros-humble-plotjuggler` / `ros-humble-plotjuggler-ros` | Real-time time-series plotting for ROS2 topics and bags |
+| `ros-humble-ros2-controllers` | Collection of ready-made controllers (diff drive, joint trajectory, etc.) |
+
+In addition, `ros2_install.sh` installs the following build and workspace tools:
+
+- **colcon** (`python3-colcon-common-extensions`) — build system for ROS2 packages
+- **rosdep** (`python3-rosdep2`) — dependency resolver
+- **vcstool** (`python3-vcstool`) — multi-repository source management
+- **colcon_ws** — a pre-initialized colcon workspace created at `~/colcon_ws`
+
+Post-install steps covered in the Quickstart add:
+
+- **pip** (`python3-pip`) — Python package manager
+- **transforms3d** — pure-Python 3-D rotation and transformation library
+- **terminator** — tiling terminal emulator widely used in ROS workflows
+
+## Script Reference
+
+<CardGroup cols={2}>
+  <Card title="ros2_install.sh" icon="file-code" href="scripts/ros2-install">
+    Sets locale, registers the ROS2 apt repository, installs `ros-humble-desktop`, builds an initial colcon workspace, and appends environment setup lines to `~/.bashrc`.
+  </Card>
+  <Card title="install_ros_packages.sh" icon="file-code" href="scripts/install-ros-packages">
+    Installs the full suite of simulation and control packages — Gazebo, ros2_control, turtlesim, robot-localization, joy, plotjuggler, and more.
+  </Card>
+</CardGroup>
+
+## License
+
+MobileRobot is released under the **MIT License**. You are free to use, modify, and distribute it for educational and research purposes. See the `LICENSE` file in the repository root for the full license text.

@@ -1,47 +1,206 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with MobileRobot in Minutes"
+sidebarTitle: "Quickstart"
+description: "Install ROS2 Humble on Ubuntu 22.04 from scratch using MobileRobot's automated scripts — from locale setup to a ready-to-build colcon workspace."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This guide walks you through installing a complete ROS2 Humble mobile-robotics development environment on Ubuntu 22.04 using MobileRobot's two automated shell scripts. By the end you will have ROS2 Humble, Gazebo, ros2_control, plotjuggler, and all supporting packages installed, a `colcon_ws` workspace ready to build, and every needed `source` line already written into your `~/.bashrc`.
 
 ## Prerequisites
 
-Before you begin, you must have:
+Before running the scripts, make sure you have the following in place:
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+- **Ubuntu 22.04 LTS** — running on bare metal or inside a [VMware Workstation Player 17](https://softwareupdate.vmware.com/cds/vmw-desktop/player/17.5.2/23775571/windows/core/) virtual machine.
+  Download the Ubuntu 22.04 desktop ISO from the official release page: [ubuntu-22.04.5-desktop-amd64.iso](https://releases.ubuntu.com/jammy/ubuntu-22.04.5-desktop-amd64.iso).
+- **Internet connection** — the scripts fetch packages from the ROS2 apt repository and the Ubuntu package mirrors.
+- **`sudo` access** — both scripts install system-level packages and require administrator privileges.
 
-## Get started
+<Warning>
+  If you have another ROS distribution already installed, open `~/.bashrc` and comment out any existing `source /opt/ros/<OTHER_DISTRO>/setup.bash` line **before** running `ros2_install.sh`. Running two ROS distributions simultaneously will cause environment conflicts.
+</Warning>
+
+<Tip>
+  On Windows or macOS? Skip this guide and head to the [Docker installation path](installation/docker) instead. The pre-built `xxthanatosxx/ros2-humble:1.0.0` image gives you a fully configured ROS2 Humble environment inside a container without needing a virtual machine.
+</Tip>
+
+## Installation Steps
+
+Download `ros2_install.sh` and `install_ros_packages.sh` from the [`Scripts/`](https://github.com/xXThanatosXx/MobileRobot/tree/main/Scripts) folder of the MobileRobot repository and save both files to your `~/Downloads` directory before starting.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Open a terminal">
+    Press **Ctrl + Alt + T** to open a new terminal window. All commands in this guide are entered here unless a new terminal is explicitly requested.
+  </Step>
+
+  <Step title="Navigate to the Downloads folder">
+    Change into the directory where you saved the installation scripts:
 
     ```bash
-    npm install your-package
+    cd Downloads
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+
+  <Step title="Make ros2_install.sh executable">
+    Grant execute permission to the primary installer script:
 
     ```bash
-    your-cli init
+    sudo chmod +x ros2_install.sh
     ```
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Verify the executable bit is set">
+    Confirm the permission change before running the script:
 
     ```bash
-    your-cli start
+    ls -la
     ```
+
+    Look for the `x` flag on `ros2_install.sh` in the output (e.g., `-rwxr-xr-x`).
+  </Step>
+
+  <Step title="Run the ROS2 installer">
+    Execute the script. It will configure the locale, register the ROS2 apt repository, install `ros-humble-desktop`, create a `colcon_ws` workspace, and update `~/.bashrc` automatically. The script pauses for confirmation before the installation begins — press **Enter** to proceed.
+
+    ```bash
+    ./ros2_install.sh
+    ```
+
+    <Note>
+      `ros2_install.sh` automatically appends the following lines to your `~/.bashrc` and sets `ROS_DOMAIN_ID=0`. You can adjust the domain ID later by editing `~/.bashrc` directly.
+
+      ```bash
+      source /opt/ros/humble/setup.bash
+      source ~/colcon_ws/install/setup.bash
+      source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+      export ROS_DOMAIN_ID=0
+      ```
+
+      It also adds two convenience aliases — `nb` (open `~/.bashrc` in nano) and `sb` (source `~/.bashrc`).
+    </Note>
+  </Step>
+
+  <Step title="Return home and source bashrc">
+    After the installer finishes, navigate back to the home directory and reload your shell environment:
+
+    ```bash
+    cd
+    ```
+
+    ```bash
+    source .bashrc
+    ```
+  </Step>
+
+  <Step title="Open a new terminal and install additional ROS2 packages">
+    Press **Ctrl + Alt + T** to open a **new** terminal so the updated `~/.bashrc` environment is fully active. Then run the following commands in sequence:
+
+    ```bash
+    source .bashrc
+    ```
+
+    ```bash
+    cd ..
+    ```
+
+    ```bash
+    sudo apt-get update
+    ```
+
+    Install the extended set of joint, URDF, TF2, Gazebo, and RViz packages:
+
+    ```bash
+    sudo apt-get install ros-$ROS_DISTRO-joint-state-publisher ros-$ROS_DISTRO-xacro ros-$ROS_DISTRO-joint-state-publisher-gui ros-$ROS_DISTRO-tf2-* ros-$ROS_DISTRO-gazebo-* ros-$ROS_DISTRO-rviz-default-plugins
+    ```
+
+    The `$ROS_DISTRO` variable is resolved from your environment and will expand to `humble`.
+  </Step>
+
+  <Step title="Navigate to Downloads and make install_ros_packages.sh executable">
+    Change back into the `Downloads` folder where the second script is located:
+
+    ```bash
+    cd Downloads
+    ```
+
+    Grant execute permission:
+
+    ```bash
+    sudo chmod +x install_ros_packages.sh
+    ```
+
+    Verify the permission:
+
+    ```bash
+    ls -la
+    ```
+  </Step>
+
+  <Step title="Run install_ros_packages.sh">
+    Execute the second installer. It installs ros2_control, Gazebo-ros2-control, turtlesim, robot-localization, joy, plotjuggler, and more:
+
+    ```bash
+    ./install_ros_packages.sh
+    ```
+  </Step>
+
+  <Step title="Source bashrc again">
+    Reload the shell environment to pick up any new entries written by the second script:
+
+    ```bash
+    source .bashrc
+    ```
+  </Step>
+
+  <Step title="Install pip">
+    Install the Python 3 package manager, which is required for the next step:
+
+    ```bash
+    sudo apt-get install python3-pip
+    ```
+  </Step>
+
+  <Step title="Install transforms3d">
+    Install the `transforms3d` Python library, used by the `ros-humble-tf-transformations` package for 3-D rotation math:
+
+    ```bash
+    pip install transforms3d
+    ```
+  </Step>
+
+  <Step title="Install Terminator terminal">
+    Install Terminator, a tiling terminal emulator that makes it easy to run multiple ROS2 nodes side-by-side:
+
+    ```bash
+    sudo apt-get install terminator
+    ```
+  </Step>
+
+  <Step title="Verify the installation">
+    Confirm that ROS2 Humble is correctly installed by checking the active distribution:
+
+    ```bash
+    rosversion -d
+    ```
+
+    The command should print:
+
+    ```bash
+    humble
+    ```
+
+    If you see `humble`, your environment is fully configured and ready for mobile-robotics development.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## What Was Installed
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+After completing all steps, your Ubuntu 22.04 system has:
+
+- **ROS2 Humble Desktop** — core libraries, `rviz2`, `rqt`, and DDS middleware
+- **colcon workspace** at `~/colcon_ws` — pre-built and sourced automatically on login
+- **Gazebo** with full ROS2 bridge and `ros2_control` plugin
+- **Simulation & control packages** — turtlesim, joint-state-publisher-gui, ros2-controllers, robot-localization, joy, joy-teleop, plotjuggler
+- **Python tooling** — pip, transforms3d
+- **Developer tools** — colcon, rosdep, vcstool, Terminator
+
+You are now ready to clone course packages into `~/colcon_ws/src`, build them with `colcon build --symlink-install`, and launch your first mobile robot simulation.

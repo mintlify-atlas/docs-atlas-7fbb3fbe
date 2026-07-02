@@ -1,0 +1,193 @@
+---
+title: "Run ROS2 Humble with Docker"
+sidebarTitle: "Docker"
+description: "Set up ROS2 Humble in a Docker container using a pre-built image or a custom Dockerfile — with X11 display forwarding support for GUI tools like RViz2."
+---
+
+The Docker installation path lets you run ROS2 Humble on Windows, macOS, or any Linux distribution without modifying your host operating system. Everything runs inside an isolated container, making it straightforward to start fresh, share environments with teammates, or run multiple ROS2 versions side-by-side. GUI tools such as RViz2 and Gazebo are supported on Windows via X11 forwarding using Xming/Xlaunch.
+
+## Prerequisites
+
+<CardGroup cols={2}>
+  <Card title="Docker Desktop" icon="docker" href="https://www.docker.com/">
+    Install Docker Desktop for your platform (Windows, macOS, or Linux). Ensure the Docker daemon is running before executing any `docker` commands.
+  </Card>
+  <Card title="Xlaunch / Xming" icon="window" href="https://sourceforge.net/projects/xming/">
+    Required on **Windows** for GUI display forwarding. Install Xming and launch **Xlaunch** before starting the container to enable tools like RViz2 to render their windows on your desktop.
+  </Card>
+</CardGroup>
+
+## Container Setup
+
+<Tabs>
+  <Tab title="Pull Pre-built Image">
+    The fastest way to get started is to pull the pre-built ROS2 Humble image published to Docker Hub. Open a terminal (CMD, PowerShell, or bash) and run the following commands.
+
+    **Pull the image:**
+
+    ```bash
+    docker pull xxthanatosxx/ros2-humble:1.0.0
+    ```
+
+    **Verify the image was downloaded:**
+
+    ```bash
+    docker images
+    ```
+
+    You should see `xxthanatosxx/ros2-humble` listed with tag `1.0.0` in the output.
+
+    **Create and start an interactive container:**
+
+    ```bash
+    docker run -it --name ros2-humble-container xxthanatosxx/ros2-humble:1.0.0 /bin/bash
+    ```
+
+    This drops you directly into a bash shell inside the container. The `--name` flag assigns a memorable name so you can manage the container easily.
+
+    **Start the container again after stopping it:**
+
+    ```bash
+    docker start ros2-humble-container
+    ```
+
+    **Stop the running container:**
+
+    ```bash
+    docker stop ros2-humble-container
+    ```
+  </Tab>
+
+  <Tab title="Build from Dockerfile">
+    If you prefer to build your own image — or want to customise the base environment — create a file named `Dockerfile` with the content below and build it locally.
+
+    **Dockerfile:**
+
+    ```dockerfile
+    # change the distro if needed
+    FROM ros:humble
+    ARG DEBIAN_FRONTEND=noninteractive
+
+    USER root
+
+    RUN apt-get update
+
+    RUN apt-get install -y build-essential sudo terminator iproute2 gedit lsb-release lsb-core wget nano
+
+    RUN adduser user
+    RUN adduser user sudo
+    # remove password
+    RUN passwd -d user
+
+    USER user
+    ```
+
+    The Dockerfile starts from the official `ros:humble` base image, installs a set of common development tools, and creates a non-root `user` account with passwordless `sudo` access for convenience inside the container.
+
+    **Build the image** (name it `ros2-humble-img`):
+
+    ```bash
+    docker build -t ros2-humble-img .
+    ```
+
+    **Create the container with X11 display forwarding:**
+
+    The `DISPLAY` environment variable points to `host.docker.internal:0`, which resolves to the Xming server running on your Windows host. The `C:\` drive is mounted at `/mnt/c` so you can access host files from inside the container.
+
+    ```bash
+    docker run --name ros2-humble --user=user --env=DISPLAY=host.docker.internal:0 --volume="C:\\:/mnt/c" --restart=no --runtime=runc --network=host -t -d ros2-humble-img
+    ```
+
+    **Optional — create the container with a dedicated shared folder mount:**
+
+    If you want a specific folder to be synchronised between host and container, add a second `--volume` flag pointing to your shared directory:
+
+    ```bash
+    docker run --name ros2-humble --user=user --env=DISPLAY=host.docker.internal:0 --volume="C:\\:/mnt/c" --volume="C:\\Users\\UNIMAR\\Documents\\Docker\\shared_folder:/mnt/shared_folder" --restart=no --runtime=runc --network=host -t -d ros2-humble-img
+    ```
+
+    Inside the container you can then verify the mount with:
+
+    ```bash
+    cd /mnt/shared_folder
+    ```
+  </Tab>
+</Tabs>
+
+## ROS2 Configuration Inside the Container
+
+Once you have a running container (from either tab above), complete the following steps to configure the ROS2 environment and verify the GUI stack.
+
+<Steps>
+  <Step title="Source the ROS2 setup file">
+    In the container's bash shell, source the ROS2 environment for the current session:
+
+    ```bash
+    source /opt/ros/humble/setup.bash
+    ```
+  </Step>
+
+  <Step title="Persist the source line in .bashrc">
+    Open `.bashrc` with nano so the environment is loaded automatically in every new shell:
+
+    ```bash
+    nano .bashrc
+    ```
+
+    Add the following line at the end of the file, then save with **Ctrl + O** and exit with **Ctrl + X**:
+
+    ```bash
+    source /opt/ros/humble/setup.bash
+    ```
+  </Step>
+
+  <Step title="Reload the shell configuration">
+    ```bash
+    source ~/.bashrc
+    ```
+  </Step>
+
+  <Step title="Install RViz2">
+    ```bash
+    sudo apt-get install ros-humble-rviz2
+    ```
+  </Step>
+
+  <Step title="Reload .bashrc again">
+    After installing new packages it is good practice to reload the environment:
+
+    ```bash
+    source ~/.bashrc
+    ```
+  </Step>
+
+  <Step title="Launch RViz2">
+    With Xlaunch running on your host, launch RViz2 to confirm that GUI forwarding is working correctly:
+
+    ```bash
+    rviz2
+    ```
+
+    The RViz2 window should appear on your host desktop, rendered through Xming. If the window does not appear, ensure Xlaunch is running and that the `DISPLAY` variable inside the container is set to `host.docker.internal:0`.
+  </Step>
+</Steps>
+
+## File Transfer Between Host and Container
+
+You can copy files and folders in both directions between your Windows host and the running container using `docker cp`.
+
+**Copy from host to container:**
+
+```bash
+docker cp "C:\Users\UNIMAR\Documents\Docker\shared_folder" ros2-humble:/home/user/test
+```
+
+**Copy from container to host:**
+
+```bash
+docker cp ros2-humble:/ruta/dentro/del/contenedor "C:\Users\UNIMAR\Documents\Docker\local_folder"
+```
+
+<Note>
+  The `docker cp` command works regardless of whether the container is running or stopped, making it a reliable way to extract build artifacts or log files after a session ends.
+</Note>

@@ -1,0 +1,71 @@
+{
+  "projectType": "infrastructure",
+  "projectName": "MobileRobot",
+  "projectDescription": "A course repository providing setup scripts, Docker configurations, and installation guides for ROS2 Humble on Ubuntu 22.04, aimed at students and researchers in mobile robotics.",
+  "theme": "aspen",
+  "primaryColor": "#0066CC",
+  "lightColor": "#3399FF",
+  "darkColor": "#003D7A",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Installation",
+            "pages": [
+              "installation/native-ubuntu",
+              "installation/docker"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/ros2-environment",
+              "configuration/workspace-setup"
+            ]
+          },
+          {
+            "group": "Scripts Reference",
+            "pages": [
+              "scripts/ros2-install",
+              "scripts/install-ros-packages"
+            ]
+          },
+          {
+            "group": "Operations",
+            "pages": [
+              "operations/docker-management",
+              "operations/uninstall"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Automated ROS2 Humble installation script for Ubuntu 22.04",
+    "Pre-built Docker image (xxthanatosxx/ros2-humble:1.0.0) for cross-platform use",
+    "Additional ROS2 packages installer script (Gazebo, controllers, tf2, rviz2, etc.)",
+    "Colcon workspace scaffolding with environment sourcing configured automatically",
+    "Docker container management with shared folder and display forwarding support",
+    "Terminator terminal and Python tooling (transforms3d, pip) setup included"
+  ],
+  "publicApiSurface": [
+    "./Scripts/ros2_install.sh",
+    "./Scripts/install_ros_packages.sh",
+    "docker pull xxthanatosxx/ros2-humble:1.0.0",
+    "docker run --name ros2-humble-container xxthanatosxx/ros2-humble:1.0.0 /bin/bash",
+    "docker commit <CONTAINER_ID> xxthanatosxx/ros2-humble:1.0.0",
+    "ros2 launch / colcon build",
+    "source /opt/ros/humble/setup.bash",
+    "ROS_DOMAIN_ID environment variable"
+  ]
+}

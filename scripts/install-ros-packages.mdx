@@ -1,0 +1,96 @@
+---
+title: "install_ros_packages.sh — ROS2 Package Installer"
+sidebarTitle: "install_ros_packages.sh"
+description: "Reference for install_ros_packages.sh: the full list of ROS2 Humble packages it installs, including Gazebo, ros2-control, PlotJuggler, and joystick teleop tools."
+---
+
+`install_ros_packages.sh` installs the additional ROS2 Humble packages required for the mobile robotics course — including the Gazebo simulator bridge, the `ros2-control` hardware abstraction stack, state-estimation tools, joystick teleoperation support, and data-visualization utilities. Run this script **after** `ros2_install.sh` has completed successfully and you have sourced your updated `~/.bashrc`.
+
+<Tip>
+  Run `sudo apt-get update && sudo apt-get upgrade` in your terminal before executing this script if you have not done so recently. Keeping your package index fresh prevents version conflicts during installation.
+</Tip>
+
+## Script Location
+
+The script lives at `Scripts/install_ros_packages.sh` in the MobileRobot repository.
+
+## Running the Script
+
+Navigate to the directory where you downloaded the script, make it executable, and run it:
+
+```bash
+sudo chmod +x install_ros_packages.sh
+./install_ros_packages.sh
+```
+
+<Note>
+  The script changes its working directory to `/home/ros` before executing. If your Linux home directory username is different (e.g. `/home/ubuntu` or `/home/student`), open the script and update the `cd /home/ros` line to match your actual home path, or simply run the script from your own home directory.
+</Note>
+
+---
+
+## What the Script Does
+
+<Steps>
+  <Step title="Update the package index">
+    Refreshes the APT package lists to ensure the latest package metadata is available:
+
+    ```bash
+    sudo apt-get update
+    ```
+  </Step>
+
+  <Step title="Upgrade existing packages">
+    Upgrades all currently installed packages to their latest versions before adding new ones:
+
+    ```bash
+    sudo apt-get upgrade
+    ```
+  </Step>
+
+  <Step title="Install ROS2 Humble packages">
+    Installs each required package individually with `apt-get install`. The full sequence from the script is shown below:
+
+    ```bash
+    sudo apt-get install ros-humble-ros2-controllers
+    sudo apt-get install ros-humble-gazebo-ros
+    sudo apt-get install ros-humble-gazebo-ros-pkgs
+    sudo apt-get install ros-humble-ros2-control
+    sudo apt-get install ros-humble-gazebo-ros2-control
+    sudo apt-get install ros-humble-joint-state-publisher-gui
+    sudo apt-get install ros-humble-turtlesim
+    sudo apt-get install ros-humble-robot-localization
+    sudo apt-get install ros-humble-joy
+    sudo apt-get install ros-humble-joy-teleop
+    sudo apt-get install ros-humble-tf-transformations
+    sudo apt-get install ros-humble-plotjuggler
+    sudo apt-get install ros-humble-plotjuggler-ros
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Package Reference
+
+The table below describes the purpose of every package installed by the script:
+
+| Package | Purpose |
+|---|---|
+| `ros-humble-ros2-controllers` | Standard controller library for ROS2 — provides diff-drive, joint trajectory, and other common robot controllers |
+| `ros-humble-gazebo-ros` | Core ROS2 bridge for Gazebo Classic — lets ROS2 nodes spawn models and communicate with the Gazebo server |
+| `ros-humble-gazebo-ros-pkgs` | Additional Gazebo/ROS2 integration packages including sensor plugins, camera drivers, and laser scan support |
+| `ros-humble-ros2-control` | Hardware abstraction layer for robot control — defines the `controller_manager` and hardware interface API |
+| `ros-humble-gazebo-ros2-control` | Gazebo plugin that connects the `ros2_control` controller manager to Gazebo-simulated actuators and sensors |
+| `ros-humble-joint-state-publisher-gui` | GUI slider tool for manually publishing `JointState` messages — useful for testing URDF models without a physical robot |
+| `ros-humble-turtlesim` | Classic turtle simulator used for learning fundamental ROS2 concepts such as topics, services, and actions |
+| `ros-humble-robot-localization` | State estimation package providing Extended Kalman Filter (EKF) and Unscented Kalman Filter (UKF) nodes for mobile robot localization |
+| `ros-humble-joy` | ROS2 driver node that reads input from a Linux joystick device and publishes `sensor_msgs/Joy` messages |
+| `ros-humble-joy-teleop` | Teleoperation node that subscribes to `sensor_msgs/Joy` messages and translates button/axis inputs into robot velocity commands |
+| `ros-humble-tf-transformations` | Python utilities for converting between rotation representations (quaternions, Euler angles, rotation matrices) in the TF2 framework |
+| `ros-humble-plotjuggler` | High-performance real-time time-series data visualization tool — supports drag-and-drop plotting of ROS2 topics |
+| `ros-humble-plotjuggler-ros` | ROS2 plugin for PlotJuggler — adds native support for subscribing to ROS2 topics and bag files directly within the PlotJuggler interface |
+
+<Note>
+  After the script finishes, run `source ~/.bashrc` in your terminal (or open a new terminal) so that the newly installed packages are discoverable on your `ROS_PACKAGE_PATH`. You can also use the `sb` alias added by `ros2_install.sh` as a shortcut.
+</Note>
