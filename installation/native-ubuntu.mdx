@@ -1,5 +1,5 @@
 ---
-title: "Install ROS2 Humble on Ubuntu 22.04"
+title: "Install ROS2 Humble on Ubuntu 22.04 with VMware Player"
 sidebarTitle: "Native Ubuntu"
 description: "Complete guide to installing ROS2 Humble natively on Ubuntu 22.04 using MobileRobot's automated ros2_install.sh script and VMware Workstation Player 17."
 ---
@@ -106,12 +106,7 @@ This page walks you through the recommended native installation path for ROS2 Hu
 
   <Step title="Install ROS2 simulation and visualisation packages">
     ```bash
-    sudo apt-get install ros-$ROS_DISTRO-joint-state-publisher \
-      ros-$ROS_DISTRO-xacro \
-      ros-$ROS_DISTRO-joint-state-publisher-gui \
-      ros-$ROS_DISTRO-tf2-* \
-      ros-$ROS_DISTRO-gazebo-* \
-      ros-$ROS_DISTRO-rviz-default-plugins
+    sudo apt-get install ros-$ROS_DISTRO-joint-state-publisher ros-$ROS_DISTRO-xacro ros-$ROS_DISTRO-joint-state-publisher-gui ros-$ROS_DISTRO-tf2-* ros-$ROS_DISTRO-gazebo-* ros-$ROS_DISTRO-rviz-default-plugins
     ```
 
     The `$ROS_DISTRO` variable is automatically set to `humble` by the sourced setup file, so no manual substitution is needed.

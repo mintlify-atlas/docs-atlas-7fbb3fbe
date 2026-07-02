@@ -1,5 +1,5 @@
 ---
-title: "Run ROS2 Humble with Docker"
+title: "Docker Installation Guide for ROS2 Humble on Windows"
 sidebarTitle: "Docker"
 description: "Set up ROS2 Humble in a Docker container using a pre-built image or a custom Dockerfile — with X11 display forwarding support for GUI tools like RViz2."
 ---
@@ -64,7 +64,7 @@ The Docker installation path lets you run ROS2 Humble on Windows, macOS, or any 
     **Dockerfile:**
 
     ```dockerfile
-    # change the distro if needed
+    #change the distro if needed, you can also use a ubuntu image and make your custom ROS install on it.
     FROM ros:humble
     ARG DEBIAN_FRONTEND=noninteractive
 
@@ -76,7 +76,7 @@ The Docker installation path lets you run ROS2 Humble on Windows, macOS, or any 
 
     RUN adduser user
     RUN adduser user sudo
-    # remove password
+    #remove password
     RUN passwd -d user
 
     USER user

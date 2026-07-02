@@ -1,5 +1,5 @@
 ---
-title: "Get Started with MobileRobot in Minutes"
+title: "Quickstart: Install ROS2 Humble with MobileRobot Scripts"
 sidebarTitle: "Quickstart"
 description: "Install ROS2 Humble on Ubuntu 22.04 from scratch using MobileRobot's automated scripts — from locale setup to a ready-to-build colcon workspace."
 ---
@@ -76,6 +76,14 @@ Download `ros2_install.sh` and `install_ros_packages.sh` from the [`Scripts/`](h
       ```
 
       It also adds two convenience aliases — `nb` (open `~/.bashrc` in nano) and `sb` (source `~/.bashrc`).
+
+      During locale setup the script also sets the following environment variables for the current session:
+
+      ```bash
+      export LANG=en_US.UTF-8
+      ```
+
+      `LC_ALL=en_US.UTF-8` is written to the system locale configuration via `sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8`. These ensure consistent UTF-8 encoding required by ROS2.
     </Note>
   </Step>
 

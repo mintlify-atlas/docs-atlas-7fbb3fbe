@@ -1,7 +1,7 @@
 ---
-title: "MobileRobot: Mobile Robotics Course Environment"
+title: "MobileRobot: ROS2 Humble Mobile Robotics Environment"
 sidebarTitle: "Introduction"
-description: "MobileRobot provides automated ROS2 Humble installation scripts and Docker images for mobile robotics students and researchers on Ubuntu 22.04."
+description: "MobileRobot provides automated ROS2 Humble install scripts and a pre-built Docker image for mobile robotics students and researchers on Ubuntu 22.04."
 ---
 
 MobileRobot is an open-source course repository designed for students and researchers who want to learn and experiment with mobile robotics using [ROS2 Humble](https://docs.ros.org/en/humble/index.html). It removes the friction of environment setup by providing battle-tested shell scripts and a pre-built Docker image, so you can focus on building and simulating robots rather than wrestling with dependencies. Whether you are running Ubuntu 22.04 natively inside a VMware virtual machine or spinning up a container on Windows or macOS, MobileRobot has a setup path ready for you.
@@ -72,6 +72,28 @@ Post-install steps covered in the Quickstart add:
     Installs the full suite of simulation and control packages — Gazebo, ros2_control, turtlesim, robot-localization, joy, plotjuggler, and more.
   </Card>
 </CardGroup>
+
+## Environment Variables
+
+`ros2_install.sh` configures the following environment variables during installation. Understanding them is useful when troubleshooting or customising the setup.
+
+| Variable | Value set by script | Purpose |
+|----------|---------------------|---------|
+| `LANG` | `en_US.UTF-8` | System-wide locale used by the shell and ROS2 tools |
+| `LC_ALL` | `en_US.UTF-8` | Overrides all locale categories to ensure consistent UTF-8 encoding |
+| `ROS_DOMAIN_ID` | `0` | DDS domain ID that scopes ROS2 node discovery; export is written to `~/.bashrc` |
+
+The Docker image additionally passes `DEBIAN_FRONTEND=noninteractive` as a build argument (`ARG`) so that `apt-get` runs without interactive prompts during the image build.
+
+## Configurable Script Variables
+
+`ros2_install.sh` exposes three shell variables at the top of the script that you can edit before running it if you need a different configuration:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `name_ros_version` | `humble` | ROS2 distribution to install (e.g., `iron`, `jazzy`) |
+| `ros2_pkg` | `desktop` | ROS2 metapackage variant — `desktop` or `ros-base` |
+| `name_workspace` | `colcon_ws` | Name of the colcon workspace created under `$HOME` |
 
 ## License
 

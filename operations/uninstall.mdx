@@ -1,5 +1,5 @@
 ---
-title: "Uninstall ROS2 Humble from Ubuntu 22.04"
+title: "Uninstalling ROS2 Humble Completely from Ubuntu 22.04"
 sidebarTitle: "Uninstall"
 description: "Completely remove ROS2 Humble from Ubuntu 22.04 — purge packages, remove APT sources, and clean up ~/.bashrc environment variables."
 ---
@@ -58,10 +58,9 @@ To cleanly remove ROS2 Humble from Ubuntu 22.04 you need to do three things: pur
     nano ~/.bashrc
     ```
 
-    Locate and **delete** the following lines that source the ROS2 environment (they were added by `ros2_install.sh`):
+    Locate and **delete** the following line that sources the ROS2 environment (it was added by `ros2_install.sh`):
 
     ```bash
-    # source ROS 2 environment
     source /opt/ros/humble/setup.bash
     ```
 
